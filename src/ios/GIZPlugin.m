@@ -341,7 +341,7 @@
     NSString *headerString = @"dccd0202";
     long hexStringInt = [hexStr length]/2;
     NSString *hexStringLen = [self ToHex:hexStringInt];
-    for (int i = 8; i > [hexStr length]; i--) {
+    for (int i = 8; i > [hexStringLen length]; i--) {
         headerString = [NSString stringWithFormat:@"%@%@", headerString, @"0" ];
     }
     if([hexStringLen length]==1 || [hexStringLen length]==3 || [hexStringLen length]==5 || [hexStringLen length]==7) {
