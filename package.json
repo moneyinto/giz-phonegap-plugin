@@ -1,0 +1,22 @@
+{
+    "name": "giz-phonegap-plugin",
+    "version": "0.0.1",
+    "description": "GIZ for cordova plugin",
+    "cordova": {
+        "id": "giz-phonegap-plugin",
+        "platforms": [
+            "android"
+        ]
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com"
+    },
+    "keywords": [
+        "ecosystem:cordova",
+        "cordova-ios",
+        "cordova-android"
+    ],
+    "author": "jieweifu",
+    "license": "MIT"
+}
