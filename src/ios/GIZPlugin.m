@@ -223,10 +223,9 @@
 - (void)device:(GizWifiDevice *)device didReceiveData:(NSError *)result data:(NSDictionary *)data withSN:(NSNumber *)sn {
     if(result.code == GIZ_SDK_SUCCESS) {
         NSLog(@"write successfully");
-        if (data != nil) {
-            NSData *binary = [data valueForKey:@"binary"];
-            Byte *bytes = (Byte *)[binary bytes];
-            NSString *dataString = [self byteToHexString: bytes];
+        NSData *binary = [data objectForKey:@"binary"];
+        if (binary != nil) {
+            NSString *dataString = [self convertDataToHexStr: binary];
             NSDictionary *response = @{@"type":@"write",@"gizEventType":@(result.code),@"result":[self hexToJson:dataString]};
             [self keepCallback:discoverDeviceCommand response:response];
         }
@@ -258,12 +257,12 @@
 }
 
 // hex to json
-- (NSData *)hexToJson:(NSString *)hexString
+- (NSDictionary *)hexToJson:(NSString *)hexString
 {
     if (!hexString || [hexString length] == 0) {
         return nil;
     }
-    
+    hexString = [hexString substringFromIndex:16];
     NSMutableData *hexData = [[NSMutableData alloc] initWithCapacity:8];
     NSRange range;
     if ([hexString length] %2 == 0) {
@@ -279,12 +278,12 @@
         [scanner scanHexInt:&anInt];
         NSData *entity = [[NSData alloc] initWithBytes:&anInt length:1];
         [hexData appendData:entity];
-        
         range.location += range.length;
         range.length = 2;
     }
-    
-    return hexData;
+    // NSString *jsonString = [[NSString alloc] initWithData:hexData encoding:NSUTF8StringEncoding];
+    NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:hexData options:0 error:nil];
+    return dict;
 }
 
 // 16进制转byte
@@ -386,22 +385,24 @@
     return str;
 }
 
-// byte to hex
--(NSString *)byteToHexString:(Byte *)bytes
+- (NSString *)convertDataToHexStr:(NSData *)data
 {
-    NSString *hexStr=@"";
-    for(int i=0;i<sizeof(bytes);i++)
-    {
-        NSString *newHexStr = [NSString stringWithFormat:@"%x",bytes[i]&0xff];///16进制数
-
-        if([newHexStr length]==1)
-
-            hexStr = [NSString stringWithFormat:@"%@0%@",hexStr,newHexStr];
-
-        else
-
-            hexStr = [NSString stringWithFormat:@"%@%@",hexStr,newHexStr];
+    if (!data || [data length] == 0) {
+        return @"";
     }
-    return hexStr;
+    NSMutableString *string = [[NSMutableString alloc] initWithCapacity:[data length]];
+    
+    [data enumerateByteRangesUsingBlock:^(const void *bytes, NSRange byteRange, BOOL *stop) {
+        unsigned char *dataBytes = (unsigned char*)bytes;
+        for (NSInteger i = 0; i < byteRange.length; i++) {
+            NSString *hexStr = [NSString stringWithFormat:@"%x", (dataBytes[i]) & 0xff];
+            if ([hexStr length] == 2) {
+                [string appendString:hexStr];
+            } else {
+                [string appendFormat:@"0%@", hexStr];
+            }
+        }
+    }];
+    return string;
 }
 @end
