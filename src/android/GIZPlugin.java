@@ -27,6 +27,7 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -383,18 +384,8 @@ public class GIZPlugin extends CordovaPlugin {
     }
 
     private static JSONObject byteToJson(byte[] data) throws JSONException {
-        int len = data.length;
-        int i = 8;
-        String s = "";
-        while(i < len) {
-            int b = data[i] & 255;
-            char c = (char) b;
-            s = s + String.valueOf(c);
-            i ++;
-            if (i == len) {
-                break;
-            }
-        }
+        data = Arrays.copyOfRange(data, 8, data.length);
+        String s = new String(data);
         return new JSONObject(s);
     }
 
